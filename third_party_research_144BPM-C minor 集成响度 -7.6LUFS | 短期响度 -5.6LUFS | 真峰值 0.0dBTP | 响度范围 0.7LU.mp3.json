@@ -1,0 +1,25 @@
+{
+  "file": "public/demos/144BPM-C minor 集成响度 -7.6LUFS | 短期响度 -5.6LUFS | 真峰值 0.0dBTP | 响度范围 0.7LU.mp3",
+  "results": {
+    "pyebur128": {
+      "status": "failed",
+      "error": "module 'pyebur128' has no attribute 'Meter'"
+    },
+    "librosa_rms": {
+      "mean": -16.66938591003418,
+      "std": 11.124886512756348,
+      "min": -83.46450805664062,
+      "max": -3.4645047187805176,
+      "range": 80.0,
+      "status": "success"
+    },
+    "custom_rms": {
+      "integrated_loudness": -35.170836703731794,
+      "loudness_range": 9.840838143936956,
+      "momentary_samples": 1747,
+      "short_term_samples": 1717,
+      "momentary_range": 219.70523730975438,
+      "status": "success"
+    }
+  }
+}

@@ -1,0 +1,104 @@
+import React from 'react'
+import type { Metadata, Viewport } from 'next'
+import { Inter } from 'next/font/google'
+import Link from 'next/link'
+import './globals.css'
+import ContactFab from '../components/ContactFab'
+import Footer from '../components/Footer'
+import TopNav from '../components/TopNav'
+import ThemeProvider from '../components/ThemeProvider'
+
+const inter = Inter({ subsets: ['latin'] })
+
+const site = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+
+export const metadata: Metadata = {
+  metadataBase: new URL(site),
+  title: {
+    default: '福乐音乐工作室｜混得干净 响得高级',
+    template: '%s｜福乐音乐工作室',
+  },
+  description: '混音 / 录音 / 母带与插件教程。位于上海的独立混音团队。',
+  alternates: { canonical: '/' },
+  openGraph: {
+    type: 'website',
+    url: '/',
+    title: '福乐音乐工作室｜混得干净 响得高级',
+    description: '混音 / 录音 / 母带与插件教程。位于上海的独立混音团队。',
+    siteName: 'Fuel Music Studio',
+    locale: 'zh_CN',
+    images: ['/og'],   // ★ 动态 OG 图
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: '福乐音乐工作室｜混得干净 响得高级',
+    description: '混音 / 录音 / 母带与插件教程。位于上海的独立混音团队。',
+    images: ['/og'],   // ★ 同步使用 /og
+  },
+  icons: {
+    icon: '/favicon.svg',
+    apple: [{ url: "/apple-icon", sizes: "180x180", type: "image/png" }],
+  },
+}
+
+export const viewport: Viewport = {
+  themeColor: '#6B4EFF'
+}
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  const ld = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "福乐音乐工作室",
+    url: process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
+    description: "混音 / 录音 / 母带与插件教程。位于上海的独立混音团队。",
+    contactPoint: [{
+      "@type": "ContactPoint",
+      email: "1779916397@qq.com",
+      contactType: "customer support",
+      areaServed: "CN"
+    }]
+  }
+
+  return (
+    <html lang="zh-CN" suppressHydrationWarning className="scroll-smooth">
+      <body className={inter.className}>
+        <ThemeProvider>
+          <TopNav />
+          <div className="h-16"></div>
+          <main className="container py-0 pt-0">
+            {children}
+          </main>
+        </ThemeProvider>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function(){
+                var ticking=false;
+                function onScroll(){
+                  if(!ticking){
+                    window.requestAnimationFrame(function(){
+                      if(window.scrollY>8){ document.body.classList.add('scrolled'); }
+                      else { document.body.classList.remove('scrolled'); }
+                      ticking=false;
+                    });
+                    ticking=true;
+                  }
+                }
+                onScroll();
+                window.addEventListener('scroll', onScroll, { passive: true });
+              })();
+            `
+          }}
+        />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }} />
+        <ContactFab />
+        <Footer />
+      </body>
+    </html>
+  )
+}

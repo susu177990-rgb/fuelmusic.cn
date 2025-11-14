@@ -1,0 +1,506 @@
+"use client";
+// Next.js 组件
+import { useState, useRef } from 'react';
+import Script from 'next/script';
+
+// 类型定义
+interface AudioFeatures {
+  bpm: number;
+  key: string;
+  scale: string;
+  lufsIntegrated: number;
+  peakDbFS: number;
+  lufsShortTerm: number[];
+  lufsRange: number;
+}
+
+interface PlatformReport {
+  [key: string]: {
+    target: string;
+    ok: boolean | null;
+  };
+}
+
+// 工具函数
+function fmtTime(seconds: number): string {
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}
+
+function fmtSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+// 主要组件
+function ToolsHub() {
+  // 文件相关状态
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [file, setFile] = useState<File | null>(null);
+  const [fileInfo, setFileInfo] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+  const [hasResult, setHasResult] = useState(false);
+  const [hint, setHint] = useState("上传音频文件后开始分析（支持 MP3 / WAV / M4A）");
+  const [chartTab, setChartTab] = useState("spectrum");
+  
+  // 播放器状态
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [volume, setVolume] = useState(1.0);
+  const [isLoading, setIsLoadingState] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  
+  // 音频分析
+  const [analyzerRunning, setAnalyzerRunning] = useState(false);
+  const [audioFeatures, setAudioFeatures] = useState<AudioFeatures | null>(null);
+  const [essentiaVersion, setEssentiaVersion] = useState<string | null>(null);
+  
+  // 新页面所需状态
+  const [bpm, setBpm] = useState<number | null>(null);
+  const [key, setKey] = useState<string | null>(null);
+  const [scale, setScale] = useState<string | null>(null);
+  const [lufsIntegrated, setLufsIntegrated] = useState<number | null>(null);
+  const [peakDbFS, setPeakDbFS] = useState<number | null>(null);
+  const [lufsShortTerm, setLufsShortTerm] = useState<number[] | null>(null);
+  const [lufsRange, setLufsRange] = useState<number | null>(null);
+  const [platformReport, setPlatformReport] = useState<PlatformReport>({
+    Spotify: { target: '-14 LUFS', ok: null },
+    YouTube: { target: '-14 LUFS', ok: null },
+    AppleMusic: { target: '-16 LUFS', ok: null },
+    TIDAL: { target: '-14 LUFS', ok: null },
+    SoundCloud: { target: '-14 LUFS', ok: null },
+    "网易云音乐": { target: '-15 LUFS', ok: null },
+    "QQ音乐": { target: '-16 LUFS', ok: null }
+  });
+  
+  // 旧有状态（保留以兼容现有功能）
+  const [keyText, setKeyText] = useState("");
+  const [lufs, setLufs] = useState<number | null>(null);
+  const [rms, setRms] = useState<number | null>(null);
+  const [centroid, setCentroid] = useState<number | null>(null);
+  const [lufsMomentary, setLufsMomentary] = useState<number | null>(null);
+  const [tempoStability, setTempoStability] = useState<number | null>(null);
+  
+  // 模拟音频分析
+  const startAnalyze = async () => {
+    if (!file) return;
+    
+    setLoading(true);
+    setHint("正在分析音频特征...");
+    
+    try {
+      // 模拟分析延迟
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // 模拟分析结果
+      const mockBpm = 120 + Math.random() * 40;
+      const mockKey = ['C', 'D', 'E', 'F', 'G', 'A', 'B'][Math.floor(Math.random() * 7)];
+      const mockScale = Math.random() > 0.5 ? 'min' : 'maj';
+      const mockLufsIntegrated = -14 - Math.random() * 6;
+      const mockPeakDbFS = -3 - Math.random() * 9;
+      const mockLufsRange = 5 + Math.random() * 10;
+      
+      // 设置分析结果
+      setBpm(Math.round(mockBpm));
+      setKey(mockKey);
+      setScale(mockScale);
+      setLufsIntegrated(mockLufsIntegrated);
+      setPeakDbFS(mockPeakDbFS);
+      setLufsRange(mockLufsRange);
+      
+      // 模拟短期响度数据
+      const shortTermData = [];
+      for (let i = 0; i < 100; i++) {
+        shortTermData.push(mockLufsIntegrated - 5 + Math.random() * 10);
+      }
+      setLufsShortTerm(shortTermData);
+      
+      // 兼容旧有状态
+      setKeyText(`${mockKey} ${mockScale === 'min' ? '小调' : '大调'}`);
+      setLufs(mockLufsIntegrated);
+      setRms(0.2 + Math.random() * 0.5);
+      setCentroid(1000 + Math.random() * 3000);
+      
+      // 更新平台报告
+      const newPlatformReport = { ...platformReport };
+      Object.keys(newPlatformReport).forEach(platform => {
+        if (platform === 'AppleMusic' || platform === 'QQ音乐') {
+          newPlatformReport[platform].ok = mockLufsIntegrated <= -16;
+        } else if (platform === '网易云音乐') {
+          newPlatformReport[platform].ok = mockLufsIntegrated <= -15;
+        } else {
+          newPlatformReport[platform].ok = mockLufsIntegrated <= -14;
+        }
+      });
+      setPlatformReport(newPlatformReport);
+      
+      setHasResult(true);
+      setHint("分析完成！点击重新分析可再次进行分析");
+      
+    } catch (err) {
+      console.error('分析出错:', err);
+      setHint("分析过程中出错，请重试");
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  // 文件选择处理
+  const onChooseFile = () => {
+    fileInputRef.current?.click();
+  };
+  
+  const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0];
+    if (selectedFile) {
+      setFile(selectedFile);
+      setFileInfo({
+        name: selectedFile.name,
+        size: selectedFile.size,
+        type: selectedFile.type,
+        duration: null, // 将在实际播放时设置
+        sampleRate: null,
+        channels: null
+      });
+      setHint("文件已选择，点击开始分析按钮开始处理");
+    }
+  };
+  
+  // 重置上传
+  const resetUpload = () => {
+    setFile(null);
+    setFileInfo(null);
+    setHasResult(false);
+    setBpm(null);
+    setKey(null);
+    setScale(null);
+    setLufsIntegrated(null);
+    setPeakDbFS(null);
+    setLufsShortTerm(null);
+    setLufsRange(null);
+    setKeyText("");
+    setLufs(null);
+    setRms(null);
+    setCentroid(null);
+    setTempoStability(null);
+    setHint("上传音频文件后开始分析（支持 MP3 / WAV / M4A）");
+    
+    // 重置平台报告
+    setPlatformReport({
+      Spotify: { target: '-14 LUFS', ok: null },
+      YouTube: { target: '-14 LUFS', ok: null },
+      AppleMusic: { target: '-16 LUFS', ok: null },
+      TIDAL: { target: '-14 LUFS', ok: null },
+      SoundCloud: { target: '-14 LUFS', ok: null },
+      "网易云音乐": { target: '-15 LUFS', ok: null },
+      "QQ音乐": { target: '-16 LUFS', ok: null }
+    });
+    
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-black text-white relative overflow-hidden pt-0.5">
+      {/* 背景装饰：紫色聚光 + 顶部暗角 */}
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
+        {/* 舞台聚光（居中，柔光） */}
+        <div className="absolute left-1/2 top-[50px] -translate-x-1/2 h-[520px] w-[520px] rounded-full blur-3xl opacity-[0.22]" style={{background: 'radial-gradient(55%_55%_at_50%_50%, rgba(127,86,255,0.55) 0%, rgba(127,86,255,0.08) 46%, rgba(0,0,0,0) 70%)'}}></div>
+        {/* 顶部暗角（更聚焦内容） */}
+        <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-black/45 to-transparent"></div>
+      </div>
+
+      <section className="mx-auto max-w-6xl px-5 pt-0.5 pb-14">
+        <header className="flex items-end justify-between gap-4">
+          <div>
+            <h1 className="text-3xl md:text-4xl font-semibold tracking-tight leading-tight">
+              在线音频分析中心 <span className="text-purple-400">Audio Analysis Hub</span>
+            </h1>
+            <p className="mt-3 text-white/70">
+              一次上传，获取 BPM、调性 Key、响度 LUFS、RMS、频谱等多个指标。全程浏览器端分析，隐私安全。
+            </p>
+          </div>
+          <div className="hidden md:flex items-center gap-2 text-sm text-white/60">
+            <a href="/" className="hover:text-white/90 transition">首页</a>
+            <span>/</span>
+            <span className="text-white/80">在线工具</span>
+          </div>
+        </header>
+
+        <div className="mt-8 rounded-2xl border border-white/10 bg-white/5 backdrop-blur p-6 transition shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] hover:shadow-[0_0_0_1px_rgba(168,85,247,0.18),0_12px_40px_rgba(0,0,0,0.28)] transition hover:border-purple-400/40 hover:bg-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] hover:shadow-[0_0_6px_3px_rgba(168,85,247,0.25),0_2px_8px_rgba(0,0,0,0.25)]">
+          <div className="flex items-center gap-3 flex-wrap">
+            <button 
+              type="button" 
+              onClick={onChooseFile}
+              className="px-5 h-10 inline-flex items-center justify-center rounded-full border border-white/10 bg-white/10 backdrop-blur-sm transition hover:bg-white/15 hover:border-purple-400/60 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] hover:shadow-[0_0_0_1px_rgba(168,85,247,0.25),0_10px_30px_rgba(0,0,0,0.28)]"
+            >
+              <span className="leading-none text-white/90 text-sm md:text-base">
+                {file ? "重新上传" : "选择文件"}
+              </span>
+            </button>
+            
+            <input 
+              ref={fileInputRef} 
+              type="file"
+              accept=".mp3,.wav,.m4a,.aac,.flac" 
+              onChange={onFileChange} 
+              className="hidden" 
+            />
+            
+            {fileInfo && (
+              <div className="text-white/60 text-sm">
+                已选择：{fileInfo.name}
+              </div>
+            )}
+            
+            <div className="ml-auto flex items-center gap-3">
+              <button 
+                type="button" 
+                disabled={!file || loading} 
+                onClick={startAnalyze}
+                className="px-5 h-10 inline-flex items-center justify-center rounded-full border border-purple-500/60 bg-purple-500/10 text-white transition hover:bg-purple-500/15 hover:border-purple-400 disabled:opacity-40 shadow-[0_0_2px_1px_rgba(255,255,255,0.08)] hover:shadow-[0_0_10px_4px_rgba(168,85,247,0.25),0_3px_10px_rgba(0,0,0,0.25)]"
+              >
+                {loading ? "分析中…" : (hasResult ? "重新分析" : "开始分析")}
+              </button>
+              
+              {file && (
+                <button 
+                  type="button" 
+                  onClick={resetUpload}
+                  className="px-4 h-10 inline-flex items-center justify-center rounded-full border border-white/10 bg-white/0 hover:bg-white/10 transition"
+                >
+                  清空
+                </button>
+              )}
+            </div>
+          </div>
+          
+          <div className="mt-3 text-white/60 text-sm">{hint}</div>
+        </div>
+        
+        <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur p-6 transition hover:border-purple-400/40 hover:bg-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] hover:shadow-[0_0_0_1px_rgba(168,85,247,0.25),0_12px_40px_rgba(0,0,0,0.35)]">
+            <div className="text-white/80 font-medium">音频特征分析</div>
+            <div className="mt-3 h-px w-full bg-gradient-to-r from-transparent via-purple-400/20 to-transparent"></div>
+            <div className="mt-4 space-y-4">
+              <div className="flex items-center justify-between text-sm text-white/70"><span>BPM（节拍速度）</span><span className="text-white/90 font-mono tabular-nums">{bpm !== null ? bpm : "--"}</span></div>
+              <div className="flex items-center justify-between text-sm text-white/70"><span>Key（调性）</span><span className="text-white/90 font-mono tabular-nums">{keyText || "--"}</span></div>
+              <div className="flex items-center justify-between text-sm text-white/70"><span>LUFS（响度）</span><span className="text-white/90 font-mono tabular-nums">{lufs !== null ? lufs.toFixed(1) : "--"}</span></div>
+              <div className="flex items-center justify-between text-sm text-white/70"><span>RMS（平均能量）</span><span className="text-white/90 font-mono tabular-nums">{rms !== null ? rms.toFixed(2) : "--"}</span></div>
+            </div>
+          </div>
+          
+          <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur p-6 transition hover:border-purple-400/40 hover:bg-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] hover:shadow-[0_0_0_1px_rgba(168,85,247,0.25),0_12px_40px_rgba(0,0,0,0.35)]">
+            <div className="text-white/80 font-medium">核心数据指标</div>
+            <div className="mt-3 h-px w-full bg-gradient-to-r from-transparent via-purple-400/20 to-transparent"></div>
+            <div className="mt-4 space-y-4 text-sm">
+              <div className="flex items-center justify-between text-white/70"><span>采样率</span><span className="text-white/90 font-mono tabular-nums">{fileInfo?.sampleRate ? fileInfo.sampleRate + " Hz" : "--"}</span></div>
+              <div className="flex items-center justify-between text-white/70"><span>声道数</span><span className="text-white/90 font-mono tabular-nums">{fileInfo?.channels ?? "--"}</span></div>
+              <div className="flex items-center justify-between text-white/70"><span>音频时长</span><span className="text-white/90 font-mono tabular-nums">{typeof fileInfo?.duration === "number" ? fmtTime(fileInfo.duration) : "--"}</span></div>
+              <div className="flex items-center justify-between text-white/70"><span>文件大小</span><span className="text-white/90 font-mono tabular-nums">{fileInfo ? fmtSize(fileInfo.size) : "--"}</span></div>
+            </div>
+          </div>
+        </div>
+        
+        <div className="mt-12 rounded-2xl border border-white/10 bg-white/5 backdrop-blur p-6 transition hover:border-purple-400/40 hover:bg-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] hover:shadow-[0_0_0_1px_rgba(168,85,247,0.25),0_12px_40px_rgba(0,0,0,0.35)]">
+          <div className="flex items-center justify-between gap-3">
+            <div className="text-white/70 text-sm">分析图表</div>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setChartTab("spectrum")}
+                className={`h-9 px-4 rounded-full border transition ${
+                  chartTab === "spectrum"
+                    ? "border-purple-400/70 bg-purple-500/15 text-white shadow-[0_0_0_1px_rgba(168,85,247,0.35)]"
+                    : "border-white/10 bg-white/0 hover:bg-white/10 text-white/80"
+                }`}
+              >
+                频谱分布图
+              </button>
+              <button
+                type="button"
+                onClick={() => setChartTab("energy")}
+                className={`h-9 px-4 rounded-full border transition ${
+                  chartTab === "energy"
+                    ? "border-purple-400/70 bg-purple-500/15 text-white shadow-[0_0_0_1px_rgba(168,85,247,0.35)]"
+                    : "border-white/10 bg-white/0 hover:bg-white/10 text-white/80"
+                }`}
+              >
+                能量波动图
+              </button>
+            </div>
+          </div>
+
+          <div className="mt-4 h-64 md:h-72 rounded-xl border border-white/10 bg-black/30 flex items-center justify-center text-white/50">
+            {chartTab === "spectrum" ? "频谱分布图（分析后显示）" : "能量波动图（分析后显示）"}
+          </div>
+        </div>
+
+        {hasResult && (
+          <div className="mt-8 rounded-2xl border border-purple-500/20 bg-purple-500/5 p-6">
+            <h3 className="text-lg font-medium text-purple-300 mb-3">📝 结果解读</h3>
+            <div className="space-y-2 text-white/70 text-sm">
+              <p>BPM: {bpm !== null ? `每分钟 ${bpm.toFixed(1)} 拍，${bpm >= 120 ? "较快节奏" : "中等节奏"}` : "未检测到"}</p>
+              <p>Key: {keyText || "未检测到"}</p>
+              <p>LUFS: {lufs !== null ? `${lufs.toFixed(1)} LUFS，${lufs > -14 ? "较为响亮" : "适中响度"}` : "未检测到"}</p>
+              <p>频谱特征: {centroid !== null ? centroid > 2000 ? "高频丰富，音色明亮" : "低频饱满，音色温暖" : "未检测到"}</p>
+            </div>
+          </div>
+        )}
+
+        <div className="mt-12 text-white/40 text-sm">
+          <div className="mb-2 font-medium text-white/50">支持格式</div>
+          <p>MP3、WAV、M4A、AAC、FLAC（建议使用WAV格式获得更精准结果）</p>
+          <div className="mt-2 font-medium text-white/50">注意事项</div>
+          <p>• 所有分析在浏览器端完成，数据不会上传到服务器</p>
+          <p>• 对于较长音频，为获得更快的分析速度，建议使用10-30秒的代表性片段</p>
+          <p>• 分析结果仅供参考，最终效果应以实际听感为准</p>
+        </div>
+        
+        {/* 新页面骨架：从这里开始 */}
+        
+        <section className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2">
+          
+          {/* ① BPM & KEY */}
+          
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-5 md:p-6 backdrop-blur-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] hover:border-purple-400/40 transition">
+            
+            <div className="text-sm text-white/50">检测结果</div>
+            
+            <h3 className="mt-1 text-xl font-semibold tracking-tight text-white">BPM / KEY</h3>
+            
+            <div className="mt-4 space-y-3">
+              
+              <div className="flex items-center justify-between"><div className="text-sm text-white/60">BPM（节拍速度）</div><div className="text-white/90">{typeof bpm === "number" ? bpm : "--"}</div></div>
+              
+              <div className="flex items-center justify-between"><div className="text-sm text-white/60">KEY（调性）</div><div className="text-white/90">{key ? key + (scale? (" " + (scale === "min" ? "min" : scale)) : "") : "--"}</div></div>
+              
+            </div>
+            
+          </div>
+          
+          
+          {/* ② 响度四项（集成/峰值/短期/LRA） */}
+          
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-5 md:p-6 backdrop-blur-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] hover:border-purple-400/40 transition">
+            
+            <div className="text-sm text-white/50">响度指标</div>
+            
+            <h3 className="mt-1 text-xl font-semibold tracking-tight text-white">LUFS & dBFS</h3>
+            
+            <div className="mt-4 space-y-3">
+              
+              <div className="flex items-center justify-between"><div className="text-sm text-white/60">集成响度（Integrated LUFS）</div><div className="text-white/90">{typeof lufsIntegrated === "number" ? lufsIntegrated.toFixed(1)+" dB" : "--"}</div></div>
+              
+              <div className="flex items-center justify-between"><div className="text-sm text-white/60">响度峰值（Peak dBFS）</div><div className="text-white/90">{typeof peakDbFS === "number" ? peakDbFS.toFixed(1)+" dB" : "--"}</div></div>
+              
+              <div className="flex items-center justify-between"><div className="text-sm text-white/60">短期响度（Short-Term LUFS）</div><div className="text-white/90">{Array.isArray(lufsShortTerm) ? (lufsShortTerm.length? (typeof lufsShortTerm[lufsShortTerm.length-1] === "number" ? lufsShortTerm[lufsShortTerm.length-1].toFixed(1)+" dB" : "--") : "--") : "--"}</div></div>
+              
+              <div className="flex items-center justify-between"><div className="text-sm text-white/60">响度范围（LRA）</div><div className="text-white/90">{typeof lufsRange === "number" ? lufsRange.toFixed(1)+" dB" : "--"}</div></div>
+              
+            </div>
+            
+          </div>
+          
+        </section>
+        
+        
+        {/* ③ 短期响度图表（占位） */}
+        
+        <section className="mt-10">
+          
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-5 md:p-6 backdrop-blur-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] hover:border-purple-400/40 transition">
+            
+            <div className="text-sm text-white/50">分析图表</div>
+            
+            <h3 className="mt-1 text-xl font-semibold tracking-tight text-white">短期响度曲线</h3>
+            
+            <div className="mt-4 h-56 md:h-64 rounded-xl border border-white/10 bg-black/20 flex items-center justify-center text-white/50">
+              
+              {/* 后续接入图表：横轴 时间（s），纵轴 LUFS（短期） */}
+              
+              <span>短期响度图表（占位）</span>
+              
+            </div>
+            
+          </div>
+          
+        </section>
+        
+        
+        {/* ④ 平台兼容性（占位） */}
+        
+        <section className="mt-10">
+          
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-5 md:p-6 backdrop-blur-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] hover:border-purple-400/40 transition">
+            
+            <div className="text-sm text-white/50">平台兼容性</div>
+            
+            <h3 className="mt-1 text-xl font-semibold tracking-tight text-white">各平台响度目标校验</h3>
+            
+            <div className="mt-4 overflow-x-auto">
+              
+              <table className="min-w-full text-sm">
+                
+                <thead className="text-white/60">
+                  
+                  <tr>
+                    
+                    <th className="py-2 pr-4 font-medium text-left">平台</th>
+                    
+                    <th className="py-2 px-4 font-medium text-left">目标范围</th>
+                    
+                    <th className="py-2 px-4 font-medium text-left">是否达标</th>
+                    
+                  </tr>
+                  
+                </thead>
+                
+                <tbody className="text-white/90">
+                  
+                  {Object.entries(platformReport).map(([name, v]) => (
+                    
+                    <tr key={name} className="border-t border-white/10">
+                      
+                      <td className="py-2 pr-4">{name}</td>
+                      
+                      <td className="py-2 px-4">{v.target}</td>
+                      
+                      <td className="py-2 px-4">{v.ok === null ? "--" : (v.ok ? "达标" : "不达标")}</td>
+                      
+                    </tr>
+                    
+                  ))}
+                  
+                </tbody>
+                
+              </table>
+              
+            </div>
+            
+            <div className="mt-3 text-xs text-white/50">* 目标范围尚未配置。你把各平台的响度目标发我后，这里会自动计算达标结果。</div>
+            
+          </div>
+          
+        </section>
+        
+        {/* 新页面骨架：到这里结束 */}
+      </section>
+    </div>
+  );
+}
+
+// 包装组件以加载必要的脚本
+function ToolsPageWithScripts() {
+  return (
+    <>
+      <ToolsHub />
+    </>
+  );
+}
+
+export default ToolsPageWithScripts;

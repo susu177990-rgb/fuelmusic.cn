@@ -1,0 +1,92 @@
+{
+  "analysis": {
+    "integrated": {
+      "errors": [
+        1.4099999999999993,
+        2.1399999999999997,
+        5.04
+      ],
+      "mean_error": 2.8633333333333333,
+      "std_error": 1.5677230481037001,
+      "max_error": 5.04,
+      "trend": "positive"
+    },
+    "range": {
+      "errors": [
+        0.5900000000000001,
+        0.74,
+        0.81
+      ],
+      "mean_error": 0.7133333333333334,
+      "std_error": 0.09177266598624134,
+      "max_error": 0.81,
+      "trend": "positive"
+    },
+    "peak": {
+      "errors": [
+        0.03,
+        -0.25,
+        0.18
+      ],
+      "mean_error": -0.013333333333333336,
+      "std_error": 0.17820088539498213,
+      "max_error": 0.25,
+      "trend": "negative"
+    }
+  },
+  "adjustments": {
+    "integrated_offset": -2.8633333333333333,
+    "range_multiplier": 0.5069124423963133,
+    "peak_offset": 0.013333333333333336
+  },
+  "test_results": {
+    "results": [
+      {
+        "song": 1,
+        "adjusted_integrated": -9.053333333333335,
+        "adjusted_range": 0.6539170506912442,
+        "adjusted_peak": 0.043333333333333335,
+        "integrated_error": -1.453333333333335,
+        "range_error": -0.04608294930875578,
+        "peak_error": 0.043333333333333335,
+        "integrated_improvement": -0.043333333333335666,
+        "range_improvement": 0.5439170506912443,
+        "peak_improvement": -0.013333333333333336
+      },
+      {
+        "song": 2,
+        "adjusted_integrated": -9.323333333333334,
+        "adjusted_range": 0.7806451612903225,
+        "adjusted_peak": -0.03666666666666667,
+        "integrated_error": -0.7233333333333345,
+        "range_error": -0.01935483870967758,
+        "peak_error": -0.2366666666666667,
+        "integrated_improvement": 1.4166666666666652,
+        "range_improvement": 0.7206451612903224,
+        "peak_improvement": 0.013333333333333308
+      },
+      {
+        "song": 3,
+        "adjusted_integrated": -7.923333333333333,
+        "adjusted_range": 0.7654377880184331,
+        "adjusted_peak": 0.3933333333333333,
+        "integrated_error": 2.1766666666666667,
+        "range_error": 0.06543778801843314,
+        "peak_error": 0.1933333333333333,
+        "integrated_improvement": 2.8633333333333333,
+        "range_improvement": 0.7445622119815669,
+        "peak_improvement": -0.013333333333333308
+      }
+    ],
+    "total_improvement": {
+      "integrated": 4.236666666666663,
+      "range": 2.009124423963134,
+      "peak": -0.013333333333333336
+    },
+    "adjustments": {
+      "integrated_offset": -2.8633333333333333,
+      "range_multiplier": 0.5069124423963133,
+      "peak_offset": 0.013333333333333336
+    }
+  }
+}

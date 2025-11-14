@@ -1,0 +1,51 @@
+{
+  "name": "福乐音乐工作室",
+  "short_name": "福乐音乐",
+  "description": "专业的音乐制作服务：混音、录音、母带处理、编曲定制。提供在线音频分析工具。",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#6B4EFF",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "zh-CN",
+  "dir": "ltr",
+  "categories": ["music", "entertainment", "utilities"],
+  "icons": [
+    {
+      "src": "/brand/logo.webp",
+      "sizes": "320x240",
+      "type": "image/webp",
+      "purpose": "any"
+    },
+    {
+      "src": "/apple-icon",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/og",
+      "sizes": "1200x630",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "福乐音乐工作室主页"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "在线工具",
+      "short_name": "工具",
+      "description": "音频分析工具",
+      "url": "/tools",
+      "icons": [
+        {
+          "src": "/brand/logo.webp",
+          "sizes": "320x240"
+        }
+      ]
+    }
+  ]
+}

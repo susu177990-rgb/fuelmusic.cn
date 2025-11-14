@@ -1,0 +1,449 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 色板 */
+:root { --brand: #6B4EFF; --ink: #111827; --soft: #000; }
+
+html, body { height: 100%; }
+
+/* 纯黑背景；保留品牌氛围光但极轻 */
+/* 注意：此样式已被移除，其功能已合并到下方Fuel Theme v2中的body样式 */
+
+/* 工具类 */
+.container { @apply mx-auto max-w-6xl px-4; }
+.section-title { font-weight: 700; letter-spacing: -0.02em; font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem); color: #fff; }
+.section-sub { @apply text-sm text-gray-400; }
+.kicker { @apply uppercase tracking-[0.18em] text-xs text-gray-500; }
+
+/* 将所有h1、p、h2、div标签文字颜色设为白色 */
+h1, h2, p, div {
+  color: #fff !important;
+}
+
+/* 玻璃卡片（深色） */
+.card {
+  @apply rounded-2xl p-6 border shadow-[0_6px_30px_rgba(0,0,0,0.35)];
+  background: rgba(20,20,20,0.7);
+  border-color: rgba(255,255,255,0.08);
+  backdrop-filter: saturate(120%) blur(14px);
+}
+.card-hover { @apply transition duration-100 hover:-translate-y-0.5 hover:border-purple-400/40 hover:shadow-[0_0_0_1px_rgba(168,85,247,0.18),0_12px_40px_rgba(0,0,0,0.28),0_0_6px_3px_rgba(168,85,247,0.25),0_2px_8px_rgba(0,0,0,0.25)]; background-color: rgba(255,255,255,0.05); } .card-hover:hover { background-color: rgba(255,255,255,0.06); }
+
+/* 按钮 */
+.btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2 font-medium transition;
+  background: color-mix(in oklab, #6B4EFF 88%, #3B26D9 12%);
+  color: white;
+}
+.btn:hover { @apply opacity-90; }
+.btn.secondary { background: rgba(255,255,255,0.08); color: #fff; border: 1px solid rgba(255,255,255,0.12); }
+
+/* 品牌渐变文本 */
+.brand-gradient {
+  background: linear-gradient(90deg, #B5A8FF, #6B4EFF);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+
+/* 顶栏滚动阴影与锚点修正（沿用） */
+/* html { scroll-behavior: smooth; } 移至下方统一管理 */
+body.scrolled header.topbar { box-shadow: 0 8px 28px rgba(0,0,0,0.55); }
+[id]{ scroll-margin-top: 80px; } @media (min-width:768px){ [id]{ scroll-margin-top: 96px; } }
+
+/* LOGO 柔光 */
+.logo-glow{ 
+  filter: 
+    drop-shadow(0 0 22px rgba(107,78,255,0.55)) 
+    drop-shadow(0 0 48px rgba(107,78,255,0.25)); 
+}
+
+/* === Fuel Theme v2 (deep black + glass) === */
+@layer base {
+  :root{
+    --bg: #000;                          /* 全站统一底色为纯黑 */
+    --ink: #ECECEC;                      /* 主文字 */
+    --ink-dim: #B9B9C1;                  /* 次要文字 */
+    --glass: rgba(255,255,255,.04);      /* 玻璃基底 */
+    --border: rgba(255,255,255,.08);     /* 1px 细边 */
+    --border-strong: rgba(255,255,255,.12);
+    --brand: #6B4EFF;                    /* 品牌紫 */
+    --shadow-glow:
+      0 0 0 1px rgba(255,255,255,.05),
+      0 8px 30px rgba(0,0,0,.55),
+      0 0 40px rgba(107,78,255,.12);     /* 柔光 */
+  }
+
+  /* 全站统一底色为纯黑 */
+  html, body {
+    background-color: #000 !important;
+    color-scheme: dark;
+  }
+  
+  /* 防止被全局渐变/图片覆盖 */
+  body {
+    @apply text-[15px] md:text-base; /* 合并原字体大小设置 */
+    background-image: none !important;
+    background: #000 !important;
+    color: var(--ink);
+  }
+  
+  /* 让内容避开（可能的）固定顶部栏，并修复锚点被遮住 */ 
+  :root { 
+    --header-offset: calc(72px + env(safe-area-inset-top, 0px)); 
+  } 
+  
+  main { 
+    padding-top: var(--header-offset) !important; 
+  } 
+  
+  /* 页面第一个区块别再往上顶，否则标题会被遮 */ 
+  main > *:first-child { 
+    margin-top: 0 !important; 
+  } 
+  
+  /* 点击锚点或内链定位时，预留顶部安全距离 */ 
+  h1, h2, h3, [id] { 
+    scroll-margin-top: var(--header-offset); 
+  }
+
+  /* 全站轻微品牌晕光（Apple 风格） */
+  body::before{
+    content:"";
+    position: fixed; inset: -30%;
+    background:
+      radial-gradient(60% 40% at 70% 15%, rgba(107,78,255,.08), transparent 60%),
+      radial-gradient(40% 25% at 20% 80%, rgba(107,78,255,.06), transparent 65%);
+    pointer-events:none; z-index:-1;
+    filter: blur(40px);
+  }
+}
+
+@layer components {
+  /* 统一玻璃卡片（可直接在容器上加 .glass / .card） */
+  .glass{
+    background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+    background-color: var(--glass);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    -webkit-backdrop-filter: saturate(150%) blur(12px);
+    backdrop-filter: saturate(150%) blur(12px);
+    box-shadow: var(--shadow-glow);
+  }
+  .glass-deep{ background-color: rgba(255,255,255,.03); border-color: var(--border-strong); }
+  .card{ @apply p-5 md:p-6; }
+  .card{ composes: glass; } /* 如果 PostCSS 不支持 composes, 也没关系，.glass 已足够 */
+
+  /* 统一按钮体系 */
+  .btn{
+    display:inline-flex; align-items:center; gap:.5rem;
+    padding:.625rem 1rem; border-radius:9999px;
+    background: rgba(107,78,255,.16);
+    color: var(--ink);
+    border:1px solid rgba(107,78,255,.35);
+    box-shadow:
+      0 8px 20px rgba(107,78,255,.16),
+      inset 0 1px 0 rgba(255,255,255,.25);
+    transition:
+      transform .1s ease,
+      box-shadow .1s ease,
+      background-color .1s ease,
+      border-color .1s ease,
+      opacity .1s ease;
+  }
+  .btn:hover{ transform: translateY(-1px); box-shadow: 0 10px 24px rgba(107,78,255,.22); }
+  .btn:active{ transform: translateY(0); }
+
+  .btn-secondary{
+    background: rgba(255,255,255,.08);
+    border:1px solid var(--border);
+    color: var(--ink);
+  }
+
+  /* 顶部导航（保留你现有 .topbar 类） */
+  .topbar{
+    background: rgba(8,8,8,.64);
+    -webkit-backdrop-filter: saturate(130%) blur(10px);
+    backdrop-filter: saturate(130%) blur(10px);
+    border-bottom: 1px solid var(--border);
+  }
+  body.scrolled .topbar{
+    box-shadow: 0 6px 24px rgba(0,0,0,.35);
+    border-bottom-color: var(--border-strong);
+  }
+
+  /* 确保"在线工具"按钮文字不换行 */
+  a[href="/tools"] {
+    white-space: nowrap !important;
+    min-width: fit-content !important;
+  }
+  a[href="/tools"] span {
+    white-space: nowrap !important;
+    display: inline-block !important;
+  }
+
+  /* FAQ 的 details/summary 更统一的卡片感（不依赖额外类名） */
+  details{
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,.03);
+    padding: .75rem 1rem;
+    color: var(--ink);
+  }
+  summary{ list-style:none; cursor:pointer; color: white; }
+  summary::-webkit-details-marker{ display:none; }
+}
+
+/* 文字弱化工具（若已存在同名跳过即可） */
+.text-dim{ color: var(--ink-dim); }
+
+/* 锚点滚动定位与平滑滚动：防止被 sticky 顶栏遮挡 */
+html{ scroll-behavior:smooth; }
+[id]{ scroll-margin-top:80px; } @media (min-width:768px){ [id]{ scroll-margin-top:96px; } }
+/* === /Fuel Theme v2 === */
+
+/* === Price Glass v1 (scoped to #pricing) === */
+@layer components {
+  /* 只给价格区块中的卡片上玻璃态与细边框，不动高度 */
+  #pricing .grid > *{
+    @apply rounded-2xl border border-white/10 backdrop-blur-md
+           shadow-[0_10px_30px_rgba(0,0,0,0.45)]
+           p-5 md:p-6 transition duration-100 hover:-translate-y-0.5 hover:border-purple-400/40 hover:shadow-[0_0_0_1px_rgba(168,85,247,0.18),0_12px_40px_rgba(0,0,0,0.28),0_0_6px_3px_rgba(168,85,247,0.25),0_2px_8px_rgba(0,0,0,0.25)];
+    background-color: rgba(255,255,255,0.04);
+  }
+  #pricing .grid > *:hover {
+    background-color: rgba(255,255,255,0.06);
+  }
+  /* 标题与小字的可读性微调（不改变你的原字号） */
+  #pricing h3{ @apply text-white; }
+  #pricing p, #pricing li, #pricing .text-dim{ @apply text-white/80; }
+  /* 如果有价格数字类名，可提亮（无则忽略不报错） */
+  #pricing .price{ @apply text-white; }
+}
+/* === /Price Glass v1 === */
+
+/* === A11y: Focus ring & touch target ===================================== */
+:root{
+  /* 焦点高亮阴影（苹果风的柔光） */
+  --focus-ring-shadow: 0 0 0 3px rgba(149,128,255,.65), 0 0 0 6px rgba(149,128,255,.18);
+}
+
+/* 键盘焦点可视化：不影响鼠标点击 outline，统一在 :focus-visible 出现 */
+:where(button,.btn,[role="button"],a[href],summary,input,textarea,select){
+  outline: none; /* 先去掉浏览器默认的 outline，避免和自定义样式叠加 */
+}
+:where(button,.btn,[role="button"],a[href],summary,input,textarea,select):focus-visible{
+  box-shadow: var(--focus-ring-shadow);
+  border-color: rgba(255,255,255,.28); /* 若元素本身有边框，稍微提亮 */
+}
+
+/* 轻微按压反馈（避免位移过大影响布局） */
+:where(button,.btn,[role="button"],a[href]):active{
+  transform: translateY(0.5px);
+}
+
+/* 触控友好：可选类，用在需要放大的可点击元素上（不会全站强制） */
+.touch-target{
+  min-width: 44px;
+  min-height: 44px;
+}
+
+/* === Media stability & perf (CLS guard / content-visibility) ============== */
+
+/* 1) 项目案例封面：在图片未加载时也占满 1:1 的空间，避免 CLS */
+#cases .project-cover,
+#cases .cover,
+#cases figure {
+  aspect-ratio: 1 / 1;           /* 保证方形占位 */
+  position: relative;
+  overflow: hidden;
+  border-radius: inherit;        /* 继承卡片圆角 */
+}
+
+/* 让封面图填充容器且不拉伸 */
+#cases img {
+  width: 100%;
+  height: 100%;
+  display: block;                /* 去除图片默认基线空隙 */
+  object-fit: cover;             /* 居中裁切，充满容器 */
+  background: radial-gradient(120% 120% at 30% 20%, rgba(255,255,255,.06), rgba(0,0,0,.12)); /* 柔和占位底色，加载更自然 */
+}
+
+/* 若你的封面外层容器用于发光/投影，禁止图片溢出造成的锯齿 */
+#cases .project-cover *,
+#cases .cover * { backface-visibility: hidden; }
+
+/* 2) 视口外内容延后渲染（滚动更顺畅）——仅作用于下折叠区 */
+#pricing, #faq, #contact {
+  content-visibility: auto;            /* 视口外不渲染 */
+  contain-intrinsic-size: 900px 1200px;/* 预估尺寸，避免突然闪动；可按实际内容再微调 */
+}
+
+/* 3) 通用图片的渲染优化（安全） */
+img, svg {
+  image-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  content-visibility: auto;            /* 不在视口内时跳过绘制，加速滚动 */
+}
+
+/* 触控友好类，应用于所有可点击元素 */
+.touch-friendly {
+  min-height: 44px;
+  min-width: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* === Anchor & A11y polish (safe, CSS-only) ================================ */
+
+/* 1) 锚点与粘性导航的间距：避免跳转后被顶部栏遮住 */
+section[id], div[id], article[id] {
+  scroll-margin-top: 96px;   /* 视口内顶部保留 ~导航高度 的空隙 */
+}
+
+@media (max-width: 1024px) {
+  section[id], div[id], article[id] {
+    scroll-margin-top: 84px; /* 移动端略小 */
+  }
+}
+
+/* 2) 平滑滚动：仅在用户未开启“减少动画”时启用 */
+@media (prefers-reduced-motion: no-preference) {
+  html:focus-within {
+    scroll-behavior: smooth;
+  }
+}
+
+/* 3) 键盘可用性：按钮/可点击元素的可见焦点（不影响鼠标状态） */
+:where(a, button, [role="button"], summary, .btn):focus-visible {
+  outline: 2px solid rgba(147, 116, 255, 0.85);      /* 品牌紫 */
+  outline-offset: 2px;
+  box-shadow: 0 0 0 6px rgba(147, 116, 255, 0.18);   /* 柔光外环 */
+  border-radius: inherit;
+}
+
+/* 对 details/summary 的小优化，避免点击区域过小 */
+summary {
+  cursor: pointer;
+}
+
+/* ==========================================================================
+   表单可用性与无侵入校验（CSS-only）
+   - 统一焦点可见
+   - 浏览器原生校验（required/type=email 等）时给出柔和提示
+   - 无需 JS，不改变现有布局与主题风格
+   ========================================================================== */
+
+/* 屏幕阅读器可见、视觉隐藏（配合 label 使用） */
+.sr-only{
+  position:absolute!important;
+  width:1px;height:1px;
+  padding:0;margin:-1px;
+  overflow:hidden;clip:rect(0,0,0,0);
+  white-space:nowrap;border:0;
+}
+
+/* 输入类控件的基础细节优化 */
+input, textarea, select {
+  -webkit-appearance: none;
+  appearance: none;
+  transition: box-shadow .2s ease, border-color .2s ease, background-color .2s ease;
+}
+input::placeholder, textarea::placeholder {
+  color: rgba(255,255,255,0.45);
+}
+
+/* 焦点可见：与全站按钮一致的品牌紫高亮（极细效果） */
+:where(input, textarea, select):focus-visible {
+  outline: 1px solid rgba(147,116,255,.9); /* 品牌紫，改为极细 */
+  outline-offset: 1px;
+  box-shadow: 0 0 0 3px rgba(147,116,255,.16); /* 减小发光范围 */
+}
+
+/* 无 JS 的“错误提示”：仅在非空且无效时显示（避免一上来就红） */
+:where(input, textarea)[required]:invalid:not(:placeholder-shown),
+:where(input[type="email"]):invalid:not(:placeholder-shown) {
+  border-color: rgba(255,112,112,.9) !important;
+  box-shadow: 0 0 0 6px rgba(255,112,112,.12);
+}
+
+/* 有效时给轻微正反馈（很淡，不抢风头） */
+:where(input, textarea):valid {
+  border-color: rgba(147,116,255,.5);
+}
+
+/* === Fuel: 顶部导航悬空微调（仅覆盖 top） === */ 
+.topbar{
+  top: 20px;             /* 下移 20px，营造更明显的悬空感 */ 
+  z-index: 50;           /* 确保始终在内容之上，避免“滑到一半消失”错觉 */ 
+}
+
+/* === Smooth scrubber (全局平滑增强) =============================== */ 
+/* 给进度条容器禁用文本选中/滚动干扰，指针样式更友好 */ 
+[data-progress] {
+  touch-action: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  cursor: pointer;
+}
+
+/* 已播放填充条的宽度变化，做一次极短线性过渡，体感更顺滑 */ 
+[data-progress-fill] {
+  will-change: width;
+  transition: width 80ms linear;
+}
+
+/* 拖拽圆点位移做同等极短过渡，避免“锯齿感” */ 
+[data-progress-thumb] {
+  will-change: transform,left;
+  transition: transform 80ms linear, left 80ms linear;
+}
+
+/* ===== Fuel Player v2（只改几何，不改配色/交互）===== */ 
+.fuel-player{ 
+  /* 仅改这两个即可整体缩放 */ 
+  --fp-btn: 34px;       /* 播放按钮直径（正圆）- 半径减少3px */ 
+  --fp-gap: 12px;       /* 按钮与进度条之间的间距 */ 
+  position: relative;
+  /* 上下两端向中心收缩4个单位 */ 
+  margin-top: calc(0.25rem + 4px); 
+  margin-bottom: calc(0.25rem + 4px); 
+} 
+ 
+/* 深色容器：高度=按钮直径-8px → 两端半圆；内部垂直居中 */ 
+.fuel-player__wrap{ 
+  position: relative; 
+  height: calc(var(--fp-btn) - 8px) !important; /* 上下各收缩4px */ 
+  border-radius: calc((var(--fp-btn) - 8px) / 2) !important; /* pill */ 
+  display: flex; 
+  align-items: center; 
+  /* 调整左侧按钮预留空间，使进度条向右变短约2px */ 
+  padding-left: calc(var(--fp-btn) - 6px); 
+} 
+ 
+/* 播放按钮：绝对定位到容器左侧，强制正圆；恢复为30px大小，调整位置使左右间距等于上下间距 */
+.fuel-player__btn{
+  position: absolute;
+  left: -2px; /* 按钮左边缘到容器左边缘的距离=按钮与容器上下空隙的距离 */
+  top: 50%;
+  transform: translateY(-50%);
+  width: 30px !important;
+  height: 30px !important;
+  aspect-ratio: 1 / 1;                 /* 双保险为正圆 */
+  border-radius: 9999px !important;     /* 正圆外观 */
+  display: grid; place-items: center;   /* 图标居中 */
+}
+.fuel-player__btn > svg, 
+.fuel-player__btn > span{ transform: scale(.9); transform-origin: center; } 
+ 
+/* 进度条承载层：高度-8px，只负责占满宽度，不动你现有的轨道/已播/滑块样式 */ 
+.fuel-player__rail{ 
+  width: 100%; 
+  min-width: 0; 
+  height: calc(2rem - 8px) !important; /* h-8 变为 h-6 左右，上下各收缩4px */ 
+}
+/* 拖拽手感优化 */
+[data-progress] { touch-action: none; user-select: none; -webkit-user-drag: none; cursor: pointer; }
+[data-progress-fill] { will-change: width; transition: width 80ms linear; }
+[data-progress-thumb] { will-change: transform,left; transition: transform 80ms linear, left 80ms linear; }
