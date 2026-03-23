@@ -18,8 +18,8 @@ export async function analyzeAudio(file: File): Promise<{
          lufsMomentaryArray: number[] | null;  // 瞬时响度数组用于绘制曲线
 }> {
   try {
-    console.log('开始后端音频分析...');
-    console.log('文件信息:', {
+    console.warn('开始后端音频分析...');
+    console.warn('文件信息:', {
       name: file.name,
       size: file.size,
       type: file.type
@@ -46,7 +46,7 @@ export async function analyzeAudio(file: File): Promise<{
       throw new Error(result.error || 'Analysis failed');
     }
     
-    console.log('后端分析结果:', result);
+    console.warn('后端分析结果:', result);
     
     return {
       bpm: result.bpm,

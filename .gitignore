@@ -11,4 +11,7 @@ coverage/
 dist/
 .idea/
 .vscode/
+.vercel/
+.trae/
+scripts/__pycache__/
 *.tsbuildinfo

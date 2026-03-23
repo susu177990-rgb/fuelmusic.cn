@@ -73,7 +73,7 @@ export const PRICING: PriceItem[] = [
   {
     slug: "vocal-mix",
     title: "Vocal 贴唱混音(带伴奏 ≤5 轨)",
-    price: "¥700 / 首",
+    price: "¥699 / 首",
     badge: "热门",
     features: [
       "交付内容：成品混音 + 母带",
@@ -87,7 +87,7 @@ export const PRICING: PriceItem[] = [
   {
     slug: "stems-mix",
     title: "分轨混音(音轨数≤ 30 轨)",
-    price: "¥1,200 起 / 首",
+    price: "¥1,199 起 / 首",
     badge: "工程定价",
     features: [
       "交付内容：分轨混音 + 高质量母带",

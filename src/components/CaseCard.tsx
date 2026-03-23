@@ -19,6 +19,7 @@ export default function CaseCard({ item }: { item: CaseItem }) {
   const [hasAudioError, setHasAudioError] = useState(false);
   const [progress, setProgress] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+  const [assetBase, setAssetBase] = useState("");
 
   const pauseOthers = useCallback(() => {
     const all = Array.from(document.querySelectorAll("audio")) as HTMLAudioElement[];
@@ -245,6 +246,19 @@ export default function CaseCard({ item }: { item: CaseItem }) {
     };
   }, [playing]);
 
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const port = window.location.port;
+      const host = window.location.hostname;
+      const isLocal = host === "localhost" || host === "127.0.0.1" || host === "::1";
+      if (port && !isLocal) {
+        setAssetBase(`${window.location.protocol}//${host}`);
+      } else {
+        setAssetBase("");
+      }
+    }
+  }, []);
+
   return (
     <div className="card card-hover space-y-3">
       {item.cover && (
@@ -259,7 +273,7 @@ export default function CaseCard({ item }: { item: CaseItem }) {
           title={playing ? "点击暂停" : "点击播放"}
         >
           <Image 
-            src={item.cover} 
+            src={assetBase ? `${assetBase}${item.cover}` : item.cover} 
             alt={`${item.artist} - ${item.title} 封面`} 
             fill 
             className="object-cover" 
@@ -323,10 +337,9 @@ export default function CaseCard({ item }: { item: CaseItem }) {
             onLoadStart={onLoadStart}
             onTimeUpdate={onTimeUpdate}
           >
-            <source src={item.audio} type="audio/mpeg" />
+            <source src={assetBase ? `${assetBase}${item.audio}` : item.audio} type="audio/mpeg" />
           </audio>
-          {/* 存储实际音频URL用于错误恢复 */}
-          <input type="hidden" ref={audioUrlRef} value={item.audio} />
+          <input type="hidden" ref={audioUrlRef} value={assetBase ? `${assetBase}${item.audio}` : item.audio} />
 
           {/* 自定义播放器：毛玻璃 + 渐变进度 + 时间 */}
           <div className="relative mt-3 rounded-2xl bg-white/[0.02] backdrop-blur-2xl px-3 py-2 shadow-[0_12px_48px_rgba(109,82,255,0.22)] fuel-player">

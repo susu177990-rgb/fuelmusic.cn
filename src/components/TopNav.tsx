@@ -3,6 +3,19 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
+function NavItem({ href, children, onClick }: { href: string; children: React.ReactNode; onClick?: () => void }) {
+  return (
+    <Link
+      href={href}
+      role="menuitem"
+      onClick={onClick}
+      className="block rounded-xl px-3 py-2 text-white/90 hover:bg-white/10 active:scale-[0.98] transition"
+    >
+      {children}
+    </Link>
+  );
+}
+
 export default function TopNav() {
   const [open, setOpen] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -67,22 +80,7 @@ export default function TopNav() {
     return () => window.removeEventListener("hashchange", onHash);
   }, []);
 
-  const Item = ({
-    href,
-    children,
-  }: { 
-    href: string;
-    children: React.ReactNode;
-  }) => (
-    <Link
-      href={href}
-      role="menuitem"
-      onClick={() => setOpen(false)}
-      className="block rounded-xl px-3 py-2 text-white/90 hover:bg-white/10 active:scale-[0.98] transition"
-    >
-      {children}
-    </Link>
-  );
+  
 
   return (
     <header className="fixed inset-x-0 top-5 z-50">
@@ -121,13 +119,14 @@ export default function TopNav() {
           {/* 右侧：汉堡按钮 + 下拉 */}
           <div className="ml-auto flex items-center gap-2 pr-2 relative flex-shrink-0">
             <div className="relative">
-              <a href="/tools"
+              <Link
+                href="/tools"
                 className="inline-flex items-center justify-center h-10 px-3 md:px-4 rounded-full border border-white/10 bg-white/10 backdrop-blur hover:bg-white/15 hover:border-purple-400/60 transition text-white/90 text-sm md:text-base flex-shrink-0 whitespace-nowrap"
                 title="在线工具"
                 style={{ whiteSpace: 'nowrap', minWidth: 'fit-content' }}
               >
                 <span style={{ whiteSpace: 'nowrap', display: 'inline-block' }}>在线工具</span>
-              </a>
+              </Link>
 
               {false && (
                 <div
@@ -171,11 +170,11 @@ export default function TopNav() {
                 role="menu"
                 className="absolute right-0 top-full mt-2 w-44 rounded-2xl border border-white/10 bg-black/80 backdrop-blur p-2 shadow-xl z-50"
               >
-                <Item href="/">首页</Item>
-                <Item href="/#services">业务</Item>
-                <Item href="/#cases">案例</Item>
-                <Item href="/#pricing">价格</Item>
-                <Item href="/#contact">联系</Item>
+                <NavItem href="/" onClick={() => setOpen(false)}>首页</NavItem>
+                <NavItem href="/#services" onClick={() => setOpen(false)}>业务</NavItem>
+                <NavItem href="/#cases" onClick={() => setOpen(false)}>案例</NavItem>
+                <NavItem href="/#pricing" onClick={() => setOpen(false)}>价格</NavItem>
+                <NavItem href="/#contact" onClick={() => setOpen(false)}>联系</NavItem>
               </div>
             )}
           </div>

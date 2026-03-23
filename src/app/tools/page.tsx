@@ -1,6 +1,7 @@
 "use client";
 // Next.js 组件
 import { useState, useRef, useEffect } from 'react';
+import Link from 'next/link';
 import { analyzeAudio } from '@/lib/audioAnalyzer';
 
 // 类型定义
@@ -626,7 +627,7 @@ function ToolsHub() {
             </p>
           </div>
           <div className="hidden sm:flex items-center gap-2 text-sm text-white/60">
-            <a href="/" className="hover:text-white/90 transition">首页</a>
+            <Link href="/" className="hover:text-white/90 transition">首页</Link>
             <span>/</span>
             <span className="text-white/80">在线工具</span>
           </div>
@@ -901,7 +902,7 @@ function ToolsHub() {
             
             <div className="text-white/80 text-sm leading-6 space-y-4">
               <p>
-                人们都讨厌音量突然变大变小，为了防止我们被突如其来的巨响"轰炸"；也为了平台上音乐的音量都在统一水平线上，在线流媒体服务会测量音乐的响度，并调低那些录制响度较高的歌曲。我们将这种响度降低称为"响度惩罚"（Loudness Penalty）。你的音乐在母带制作时响度越高，受到的惩罚就可能越大。但所有的流媒体服务采取的方式不尽相同，给出的惩罚值也不一样，这使得你很难知道自己的音乐会面临多大的响度惩罚。
+                人们都讨厌音量突然变大变小，为了防止我们被突如其来的巨响&ldquo;轰炸&rdquo;；也为了平台上音乐的音量都在统一水平线上，在线流媒体服务会测量音乐的响度，并调低那些录制响度较高的歌曲。我们将这种响度降低称为&ldquo;响度惩罚&rdquo;（Loudness Penalty）。你的音乐在母带制作时响度越高，受到的惩罚就可能越大。但所有的流媒体服务采取的方式不尽相同，给出的惩罚值也不一样，这使得你很难知道自己的音乐会面临多大的响度惩罚。
               </p>
               
               <p>

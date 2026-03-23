@@ -3,6 +3,19 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { BRAND } from "../app/lib/site-data";
 
+function NavLinks({ onClick }: { onClick?: () => void }) {
+  return (
+    <>
+      <Link href="/" className="hover:opacity-80 transition" onClick={onClick}>首页</Link>
+      <Link href="/#services" className="hover:opacity-80 transition" onClick={onClick}>业务</Link>
+      <Link href="/#cases" className="hover:opacity-80 transition" onClick={onClick}>案例</Link>
+      <Link href="/#pricing" className="hover:opacity-80 transition" onClick={onClick}>价格</Link>
+      <Link href="/download" className="hover:opacity-80 transition" onClick={onClick}>下载</Link>
+      <Link href="/#contact" className="hover:opacity-80 transition" onClick={onClick}>联系</Link>
+    </>
+  );
+}
+
 export default function Topbar() {
   const [open, setOpen] = useState(false);
 
@@ -12,16 +25,7 @@ export default function Topbar() {
     return () => window.removeEventListener("hashchange", handler);
   }, []);
 
-  const NavLinks = ({ onClick }: { onClick?: () => void }) => (
-    <>
-      <Link href="/" className="hover:opacity-80 transition" onClick={onClick}>首页</Link>
-      <a href="/#services" className="hover:opacity-80 transition" onClick={onClick}>业务</a>
-      <a href="/#cases" className="hover:opacity-80 transition" onClick={onClick}>案例</a>
-      <a href="/#pricing" className="hover:opacity-80 transition" onClick={onClick}>价格</a>
-      <Link href="/download" className="hover:opacity-80 transition" onClick={onClick}>下载</Link>
-      <a href="/#contact" className="hover:opacity-80 transition" onClick={onClick}>联系</a>
-    </>
-  );
+  
 
   return (
     <header className="topbar fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-black/40 backdrop-blur supports-[backdrop-filter]:backdrop-blur-md">

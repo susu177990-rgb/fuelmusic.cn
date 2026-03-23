@@ -23,11 +23,17 @@ export function middleware(req: NextRequest) {
 
   const desiredHost = 'fuelmusic.cn';
   const host = req.headers.get('host') || '';
+  const hostname = host.split(':')[0]?.toLowerCase() || '';
+  const isLocalHost =
+    hostname === 'localhost' ||
+    hostname === '127.0.0.1' ||
+    hostname === '0.0.0.0' ||
+    hostname.endsWith('.local');
   const proto = req.headers.get('x-forwarded-proto') || 'http';
   const url = req.nextUrl.clone();
 
   // 1) 域名 & 协议规范化：强制 https + 根域
-  if (host !== desiredHost || proto !== 'https') {
+  if (!isLocalHost && (host !== desiredHost || proto !== 'https')) {
     url.host = desiredHost;
     url.protocol = 'https';
     return NextResponse.redirect(url, 308);
