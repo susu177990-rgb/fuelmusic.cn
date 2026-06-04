@@ -10,7 +10,6 @@ import json
 import numpy as np
 import essentia.standard as es
 from typing import Dict, Any, List, Tuple
-from scipy import signal
 
 # 导入曲线优化器
 from loudness_curve_optimizer import LoudnessCurveOptimizer
@@ -278,7 +277,8 @@ def detect_bpm_essentia(audio: np.ndarray) -> float:
         # 使用Essentia的BPM检测算法
         bpm_analyzer = es.PercivalBpmEstimator()
         bpm = bpm_analyzer(audio)
-        return float(bpm)
+        # 当前站内测得结果稳定偏半拍，统一按 x2 归一化到常见站点口径
+        return float(bpm) * 2.0
     except Exception:
         return 120.0
 

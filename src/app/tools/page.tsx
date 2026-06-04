@@ -179,12 +179,9 @@ function ToolsHub() {
           } else if (prev < 80) {
             setCurrentStep("正在计算响度LUFS...");
             setHint("正在计算响度LUFS...");
-          } else if (prev < 95) {
-            setCurrentStep("正在检测真峰值...");
-            setHint("正在检测真峰值...");
           } else {
-            setCurrentStep("正在生成分析报告...");
-            setHint("正在生成分析报告...");
+            setCurrentStep("正在进行后端音频分析...");
+            setHint("正在进行后端音频分析...");
           }
           
           return prev + Math.random() * 10;
