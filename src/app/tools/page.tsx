@@ -2,7 +2,7 @@
 // Next.js 组件
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { analyzeAudio } from '@/lib/audioAnalyzer';
+import { analyzeAudio } from '../../lib/audioAnalyzer';
 
 // 类型定义
 interface AudioFeatures {

@@ -2,7 +2,7 @@
 import Image from "next/image";
 import { useRef, useState, useCallback, useEffect } from "react";
 import type { CaseItem } from "../app/lib/site-data";
-import ProgressBar from "@/components/ProgressBar";
+import ProgressBar from "./ProgressBar";
 
 function formatPlay(n: number) {
   // 12,345 => 1.2万；1,234,567 => 123.4万；过亿可自行扩展

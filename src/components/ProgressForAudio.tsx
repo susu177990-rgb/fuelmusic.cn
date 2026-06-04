@@ -2,7 +2,7 @@
 "use client"; 
 
  import { useEffect, useRef, useState } from "react"; 
- import { useScrubber } from "@/lib/useScrubber"; 
+ import { useScrubber } from "../lib/useScrubber"; 
 
 export default function ProgressForAudio({
   audioRef,
