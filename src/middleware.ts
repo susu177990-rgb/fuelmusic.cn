@@ -8,17 +8,7 @@ import { NextResponse, type NextRequest } from 'next/server';
  */
 export function middleware(req: NextRequest) {
   const isProd = process.env.NODE_ENV === 'production';
-  
-  // 特殊处理：直接返回空JS响应给/@vite/client请求
-  if (req.nextUrl.pathname === '/@vite/client') {
-    return new NextResponse('// Vite client mock', {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/javascript',
-      },
-    });
-  }
-  
+
   if (!isProd) return NextResponse.next();
 
   const desiredHost = 'fuelmusic.cn';

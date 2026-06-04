@@ -15,3 +15,6 @@ dist/
 .trae/
 scripts/__pycache__/
 *.tsbuildinfo
+*.backup
+*.bak
+*.bak-*

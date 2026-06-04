@@ -41,7 +41,7 @@ export default function CaseDetail({ params }: { params: Params }) {
       <nav className="text-sm text-gray-500">
         <Link href="/" className="link">首页</Link>
         <span className="mx-2">/</span>
-        <a href="/#cases" className="link">项目案例</a>
+        <Link href="/#cases" className="link">项目案例</Link>
       </nav>
 
       <header className="rounded-2xl p-6 md:p-8 bg-white/80 dark:bg-neutral-900/70 border border-black/5 dark:border-white/10">
@@ -80,8 +80,8 @@ export default function CaseDetail({ params }: { params: Params }) {
        )}
 
       <div className="flex gap-3">
-        <a href="#contact" className="btn">联系合作</a>
-        <a href="/#cases" className="btn secondary">返回案例列表</a>
+        <Link href="/#contact" className="btn">联系合作</Link>
+        <Link href="/#cases" className="btn secondary">返回案例列表</Link>
       </div>
 
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }} />

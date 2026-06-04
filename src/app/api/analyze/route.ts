@@ -1,10 +1,27 @@
-import { writeFile, unlink } from 'fs/promises';
-import { exec } from 'child_process';
-import { promisify } from 'util';
-import path from 'path';
+import { randomUUID } from 'crypto';
+import { execFile } from 'child_process';
+import { access, constants } from 'fs/promises';
+import { unlink, writeFile } from 'fs/promises';
 import os from 'os';
+import path from 'path';
+import { promisify } from 'util';
 
-const execAsync = promisify(exec);
+const execFileAsync = promisify(execFile);
+const MAX_FILE_SIZE_BYTES = 100 * 1024 * 1024;
+const ALLOWED_FILE_TYPES = new Set([
+  'audio/flac',
+  'audio/m4a',
+  'audio/mp3',
+  'audio/mpeg',
+  'audio/wav',
+  'audio/x-m4a',
+  'audio/x-wav',
+]);
+
+function getSafeTempFilePath(file: File) {
+  const extension = path.extname(file.name).replace(/[^a-zA-Z0-9.]/g, '') || '.audio';
+  return path.join(os.tmpdir(), `fuelmusic-${randomUUID()}${extension}`);
+}
 
 export async function POST(request: Request) {
   let tempFilePath = '';
@@ -20,29 +37,34 @@ export async function POST(request: Request) {
       });
     }
 
+    if (!ALLOWED_FILE_TYPES.has(audioFile.type)) {
+      return new Response(JSON.stringify({ error: '不支持的音频格式' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    if (audioFile.size > MAX_FILE_SIZE_BYTES) {
+      return new Response(JSON.stringify({ error: '文件过大，最大支持 100MB' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
     // 将文件保存到临时目录
     const arrayBuffer = await audioFile.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
-    const tempFileName = `${Date.now()}-${audioFile.name}`;
-    tempFilePath = path.join(os.tmpdir(), tempFileName);
+    tempFilePath = getSafeTempFilePath(audioFile);
 
     await writeFile(tempFilePath, buffer);
     console.log(`临时文件已保存: ${tempFilePath}`);
 
-    let pythonScriptPath = '';
-    // 检查是否在开发环境
-    if (process.env.NODE_ENV === 'development') {
-      // 开发环境路径
-      pythonScriptPath = path.join(process.cwd(), 'scripts', 'audio_analyzer_essentia.py');
-    } else {
-      // 生产环境路径 (假设部署时脚本在项目根目录下的scripts文件夹)
-      pythonScriptPath = path.join(process.cwd(), 'scripts', 'audio_analyzer_essentia.py');
-    }
+    const pythonScriptPath = path.join(process.cwd(), 'scripts', 'audio_analyzer_essentia.py');
 
     // 确保Python脚本存在
     try {
-      await promisify(require('fs').access)(pythonScriptPath, require('fs').constants.F_OK);
-    } catch (err) {
+      await access(pythonScriptPath, constants.F_OK);
+    } catch {
       console.error(`Python脚本不存在: ${pythonScriptPath}`);
       return new Response(JSON.stringify({ error: `Python脚本不存在: ${pythonScriptPath}` }), {
         status: 500,
@@ -51,7 +73,10 @@ export async function POST(request: Request) {
     }
 
     // 调用Python脚本进行分析
-    const { stdout, stderr } = await execAsync(`python3 "${pythonScriptPath}" "${tempFilePath}"`);
+    const { stdout, stderr } = await execFileAsync('python3', [pythonScriptPath, tempFilePath], {
+      timeout: 300000,
+      maxBuffer: 1024 * 1024 * 10,
+    });
 
     if (stderr) {
       console.error('Python脚本错误输出:', stderr);
@@ -67,6 +92,13 @@ export async function POST(request: Request) {
     }
 
     const result = JSON.parse(stdout);
+
+    if (!result.success) {
+      return new Response(JSON.stringify({ error: result.error || '分析失败' }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
 
     return new Response(JSON.stringify(result), {
       status: 200,

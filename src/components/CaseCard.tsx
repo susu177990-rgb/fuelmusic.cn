@@ -19,7 +19,6 @@ export default function CaseCard({ item }: { item: CaseItem }) {
   const [hasAudioError, setHasAudioError] = useState(false);
   const [progress, setProgress] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
-  const [assetBase, setAssetBase] = useState("");
 
   const pauseOthers = useCallback(() => {
     const all = Array.from(document.querySelectorAll("audio")) as HTMLAudioElement[];
@@ -109,7 +108,7 @@ export default function CaseCard({ item }: { item: CaseItem }) {
   };
 
   // 拖动过程中更新进度
-  const onSeekMove = (e: MouseEvent | TouchEvent) => {
+  const onSeekMove = useCallback((e: MouseEvent | TouchEvent) => {
     if (!isDragging) return;
     
     const el = audioRef.current;
@@ -119,11 +118,11 @@ export default function CaseCard({ item }: { item: CaseItem }) {
     const clickPosition = getProgressFromClientX(clientX);
     
     setProgress(clickPosition);
-  };
+  }, [isDragging]);
 
   // 拖动结束，应用最终进度
   // 拖动结束，应用最终进度并优化用户体验
-  const onSeekEnd = () => {
+  const onSeekEnd = useCallback(() => {
     if (!isDragging) return;
     
     const el = audioRef.current;
@@ -139,7 +138,7 @@ export default function CaseCard({ item }: { item: CaseItem }) {
       // 即使出错也重置拖动状态，避免UI卡死
       setIsDragging(false);
     }
-  };
+  }, [isDragging, progress]);
 
   // 设置拖动事件监听和加载事件处理
   useEffect(() => {
@@ -188,7 +187,7 @@ export default function CaseCard({ item }: { item: CaseItem }) {
       window.removeEventListener("touchmove", handleTouchMove);
       window.removeEventListener("touchend", handleTouchEnd);
     };
-  }, [isDragging, progress]);
+  }, [isDragging, onSeekEnd, onSeekMove]);
 
   // 优化全局空格键控制 - 允许空格键切换播放/暂停状态
   useEffect(() => {
@@ -215,50 +214,6 @@ export default function CaseCard({ item }: { item: CaseItem }) {
     };
   }, [togglePlay]);
   
-  // 添加播放状态同步 - 监听其他音频元素的暂停事件
-  useEffect(() => {
-    const handleOtherAudioPause = () => {
-      const audioElement = audioRef.current;
-      if (audioElement && !audioElement.paused) {
-        // 检查是否还有其他音频在播放
-        const otherPlaying = Array.from(document.querySelectorAll('audio')).some(
-          a => a !== audioElement && !a.paused
-        );
-        if (!otherPlaying && playing) {
-          setPlaying(true); // 保持当前播放状态
-        }
-      }
-    };
-    
-    const allAudios = Array.from(document.querySelectorAll('audio'));
-    allAudios.forEach(audio => {
-      if (audio !== audioRef.current) {
-        audio.addEventListener('pause', handleOtherAudioPause);
-      }
-    });
-    
-    return () => {
-      allAudios.forEach(audio => {
-        if (audio !== audioRef.current) {
-          audio.removeEventListener('pause', handleOtherAudioPause);
-        }
-      });
-    };
-  }, [playing]);
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const port = window.location.port;
-      const host = window.location.hostname;
-      const isLocal = host === "localhost" || host === "127.0.0.1" || host === "::1";
-      if (port && !isLocal) {
-        setAssetBase(`${window.location.protocol}//${host}`);
-      } else {
-        setAssetBase("");
-      }
-    }
-  }, []);
-
   return (
     <div className="card card-hover space-y-3">
       {item.cover && (
@@ -273,7 +228,7 @@ export default function CaseCard({ item }: { item: CaseItem }) {
           title={playing ? "点击暂停" : "点击播放"}
         >
           <Image 
-            src={assetBase ? `${assetBase}${item.cover}` : item.cover} 
+            src={item.cover} 
             alt={`${item.artist} - ${item.title} 封面`} 
             fill 
             className="object-cover" 
@@ -337,9 +292,9 @@ export default function CaseCard({ item }: { item: CaseItem }) {
             onLoadStart={onLoadStart}
             onTimeUpdate={onTimeUpdate}
           >
-            <source src={assetBase ? `${assetBase}${item.audio}` : item.audio} type="audio/mpeg" />
+            <source src={item.audio} type="audio/mpeg" />
           </audio>
-          <input type="hidden" ref={audioUrlRef} value={assetBase ? `${assetBase}${item.audio}` : item.audio} />
+          <input type="hidden" ref={audioUrlRef} value={item.audio} />
 
           {/* 自定义播放器：毛玻璃 + 渐变进度 + 时间 */}
           <div className="relative mt-3 rounded-2xl bg-white/[0.02] backdrop-blur-2xl px-3 py-2 shadow-[0_12px_48px_rgba(109,82,255,0.22)] fuel-player">

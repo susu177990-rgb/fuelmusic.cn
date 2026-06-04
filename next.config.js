@@ -16,25 +16,6 @@ const nextConfig = {
     // 确保服务器组件和客户端组件正确分离
     serverComponentsExternalPackages: [],
   },
-  // 添加webpack配置来处理/@vite/client请求
-  webpack: (config) => {
-    // 简化配置：移除任何可能导致问题的别名
-    config.resolve.alias = {
-      ...config.resolve.alias,
-    };
-    
-    // 不使用复杂的钩子，而是简单地处理
-    return config;
-  },
-  async rewrites() {
-    return [
-      // 将/@vite/client请求重定向到一个空响应
-      {
-        source: '/@vite/client',
-        destination: '/_next/static/chunks/app/_error/page.js', // 使用一个可能存在的空页面文件
-      },
-    ]
-  },
   async headers() {
     return [
       {
